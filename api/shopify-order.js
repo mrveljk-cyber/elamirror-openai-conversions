@@ -5,7 +5,7 @@ export const config = { api: { bodyParser: false } };
 const OPENAI_PIXEL_ID = process.env.OPENAI_PIXEL_ID;
 const OPENAI_ADS_API_KEY = process.env.OPENAI_ADS_API_KEY;
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
-const EXPECTED_SHOP = process.env.SHOPIFY_SHOP_DOMAIN || "elamirror.myshopify.com";
+const EXPECTED_SHOP = process.env.SHOPIFY_SHOP_DOMAIN || "wm12u5-wj.myshopify.com";
 
 function sha256(value) {
   return crypto.createHash("sha256").update(String(value).trim().toLowerCase()).digest("hex");
