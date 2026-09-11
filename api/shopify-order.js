@@ -76,6 +76,7 @@ export default async function handler(req, res) {
           type: "order_created",
           timestamp_ms: Date.now(),
           action_source: "web",
+          source_url: order.source_url || "https://elamirror.de",
           user,
           data: {
             type: "contents",
