@@ -31,6 +31,25 @@ function orderEventId(order) {
   return id ? `gid://shopify/Order/${id}` : String(order.checkout_token || order.token || "");
 }
 
+function extractOppref(order) {
+  const direct = [order.oppref, order.landing_site, order.source_url, order.referring_site];
+  for (const value of direct) {
+    if (!value) continue;
+    if (typeof value === "string" && !value.includes("?") && value.startsWith("oppref_")) return value;
+    try {
+      const url = new URL(value, "https://elamirror.de");
+      const oppref = url.searchParams.get("oppref");
+      if (oppref) return oppref;
+    } catch {}
+  }
+  for (const attr of order.note_attributes || []) {
+    if (["oppref", "__oppref"].includes(String(attr?.name || "").toLowerCase()) && attr?.value) {
+      return String(attr.value);
+    }
+  }
+  return undefined;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
@@ -50,6 +69,7 @@ export default async function handler(req, res) {
     const amount = Math.round(Number(order.total_price || 0) * 100);
     const currency = order.currency || order.presentment_currency || "EUR";
     const eventId = orderEventId(order);
+    const oppref = extractOppref(order);
     const timestampMs = order.created_at ? Date.parse(order.created_at) : Date.now();
 
     const user = {};
@@ -66,6 +86,7 @@ export default async function handler(req, res) {
         timestamp_ms: Number.isFinite(timestampMs) ? timestampMs : Date.now(),
         action_source: "web",
         source_url: "https://elamirror.de",
+        ...(oppref ? { oppref } : {}),
         user,
         data: { type: "contents", amount, currency }
       }]
